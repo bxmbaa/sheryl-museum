@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#f7f7f4">
+<title>The Sheryl Museum</title>
+<style>
+:root{--ink:#292923;--muted:#77776e;--gold:#b5a27a;--line:#e6e4dc;--paper:#fbfbf8}
+*{box-sizing:border-box}body{margin:0;background:var(--paper);color:var(--ink);font-family:Georgia,'Times New Roman',serif}
+button,input{font:inherit}button{cursor:pointer}
+header{padding:24px clamp(18px,5vw,60px);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line);gap:12px}
+.brand{font-size:clamp(18px,3vw,26px);letter-spacing:.13em}.sub{font:10px Arial,sans-serif;letter-spacing:.22em;color:var(--muted);margin-top:7px}
+header .heart{color:var(--gold);font-size:24px}
+main{max-width:1100px;margin:auto;padding:26px 18px 55px}
+.intro{text-align:center;padding:28px 10px 22px}.eyebrow{font:10px Arial,sans-serif;letter-spacing:.25em;color:var(--gold)}
+h1{font-weight:400;font-size:clamp(30px,6vw,52px);margin:12px 0}.intro p{color:var(--muted);line-height:1.7;max-width:580px;margin:0 auto}
+.game{position:relative;height:min(64vh,550px);min-height:390px;border:1px solid #deddd5;border-radius:5px;overflow:hidden;background:linear-gradient(#f8f8f4 0%,#f0f0eb 72%,#e5e4de 72%);box-shadow:0 18px 55px #34342412}
+.scene{position:absolute;inset:0;overflow:hidden;perspective:900px}
+.backwall{position:absolute;left:8%;right:8%;top:8%;height:64%;background:linear-gradient(90deg,#f1f0eb,#fff 50%,#f1f0eb);border:1px solid #e4e2da;box-shadow:0 5px 20px #3331}
+.floor{position:absolute;left:-15%;right:-15%;height:55%;bottom:-13%;background:repeating-linear-gradient(0deg,transparent 0 59px,#d5d3cb 60px),repeating-linear-gradient(90deg,transparent 0 99px,#d5d3cb 100px),linear-gradient(#e9e8e2,#dcdad2);transform:perspective(400px) rotateX(12deg);transform-origin:top}
+.ceiling-light{position:absolute;top:0;left:40%;width:20%;height:12%;background:#fff;filter:blur(24px);opacity:.8}
+.frames{position:absolute;top:19%;left:10%;right:10%;display:flex;justify-content:space-around;gap:3%;transition:transform .25s}
+.frame{width:25%;max-width:190px;min-width:0;background:#fff;padding:9px 9px 13px;border:5px solid #c7b995;box-shadow:0 10px 25px #0002;transform:translateZ(0);cursor:pointer;transition:transform .2s}
+.frame:hover{transform:translateY(-5px)}
+.frame img,.placeholder{width:100%;height:clamp(105px,19vw,190px);object-fit:cover;display:flex;align-items:center;justify-content:center;background:#efeee9;color:#a69a7c;font-size:30px}
+.frame small{display:block;text-align:center;font:10px Arial,sans-serif;letter-spacing:.12em;color:#65645c;margin-top:9px;overflow-wrap:anywhere}
+.hud{position:absolute;top:15px;left:15px;right:15px;display:flex;justify-content:space-between;gap:8px;pointer-events:none}
+.pill{background:#ffffffdf;border:1px solid #e8e5dc;padding:8px 11px;border-radius:30px;font:10px Arial,sans-serif;letter-spacing:.12em;color:#5f5d54}
+.guide{position:absolute;bottom:15px;left:15px;max-width:min(390px,75%);padding:12px 15px;background:#ffffffed;border:1px solid #e8e5dc;box-shadow:0 5px 20px #0001}
+.guide b{display:block;font:10px Arial,sans-serif;letter-spacing:.18em;color:#a18d62;margin-bottom:6px}.guide p{font-size:14px;line-height:1.5;margin:0}
+.controls{position:absolute;right:15px;bottom:15px;display:grid;grid-template-columns:repeat(3,40px);gap:4px}
+.controls button,.turns button,.action{border:1px solid #dedbd1;background:#ffffffed;color:#38372f;border-radius:4px;padding:9px}
+.controls button{height:38px;font:16px Arial,sans-serif}.controls .empty{visibility:hidden}
+.below{display:grid;grid-template-columns:1.2fr .8fr;gap:18px;margin-top:20px}
+.panel{border:1px solid var(--line);padding:17px;background:#fff}
+.panel h2{font-size:18px;font-weight:400;margin:0 0 13px}
+.rooms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.room{padding:12px;text-align:left;border:1px solid var(--line);background:#fff;color:var(--ink)}
+.room.active{border-color:var(--gold);background:#f8f6f0}
+.room strong{display:block;font-size:13px;font-weight:400}.room small{font:10px Arial,sans-serif;color:var(--muted);display:block;margin-top:5px}
+.upload p,.hint{font:12px/1.6 Arial,sans-serif;color:var(--muted)}
+input[type=file]{width:100%;font:12px Arial,sans-serif;margin:8px 0}
+.turns{display:flex;gap:7px;margin-top:10px}.turns button{flex:1;font:11px Arial,sans-serif}
+.action{font:11px Arial,sans-serif;letter-spacing:.08em}
+.modal{display:none;position:absolute;inset:0;background:#171711aa;z-index:5;align-items:center;justify-content:center;padding:20px}
+.modal.open{display:flex}.modalbox{background:#fff;padding:20px;max-width:360px;width:100%;text-align:center}
+.modalbox img{max-height:240px;max-width:100%;object-fit:contain}.modalbox h3{font-weight:400}.modalbox p{font-size:14px;line-height:1.6;color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:12px;padding:30px 10px}
+@media(max-width:700px){.below{grid-template-columns:1fr}.game{height:470px}.frames{left:5%;right:5%;gap:2%}.frame{width:31%;padding:6px;border-width:3px}.frame small{font-size:8px}.guide{max-width:70%;bottom:12px;left:10px;padding:9px 10px}.guide p{font-size:12px}.controls{right:9px;bottom:10px;grid-template-columns:repeat(3,34px);gap:3px}.controls button{height:34px;padding:0}.hud{left:9px;right:9px;top:9px}.pill{font-size:8px;padding:7px 8px}}
+</style>
+</head>
+<body>
+<header><div><div class="brand">THE SHERYL MUSEUM</div><div class="sub">A PLACE MADE JUST FOR YOU</div></div><div class="heart">♡</div></header>
+<main>
+<section class="intro"><div class="eyebrow">WELCOME, SHERYL</div><h1>A little world of memories.</h1><p>Take your time, explore each room, and discover the little things this place was made to celebrate. Your guide, My Love, is here to show you around.</p></section>
+<section class="game" id="game" tabindex="0" aria-label="Interactive museum">
+ <div class="scene" id="scene"><div class="backwall"></div><div class="ceiling-light"></div><div class="floor"></div>
+  <div class="frames" id="frames"></div>
+ </div>
+ <div class="hud"><span class="pill" id="room-label">01 · THE BEGINNING</span><span class="pill">♡ SHERYL</span></div>
+ <div class="guide"><b>MY LOVE · YOUR GUIDE</b><p id="guide-text">Welcome, Sheryl. I've been waiting to show you something special. This little place is for you.</p></div>
+ <div class="controls" aria-label="Movement controls"><span class="empty"></span><button data-move="forward" aria-label="Forward">↑</button><span class="empty"></span><button data-move="left" aria-label="Left">←</button><button data-move="back" aria-label="Back">↓</button><button data-move="right" aria-label="Right">→</button></div>
+ <div class="modal" id="modal"><div class="modalbox"><div id="modal-content">♡</div><h3 id="modal-title">A memory</h3><p id="modal-desc"></p><button class="action" id="close-modal">CLOSE</button></div></div>
+</section>
+<div class="turns"><button id="turn-left" class="action">↶ TURN LEFT</button><button id="turn-right" class="action">TURN RIGHT ↷</button><button id="next-room" class="action">NEXT ROOM →</button></div>
+<div class="hint" style="text-align:center;margin-top:8px">Use W A S D or the arrow keys to move. Use the on-screen arrows on mobile. Tap a photograph to view it.</div>
+<section class="below">
+ <div class="panel"><h2>Explore the rooms</h2><div class="rooms" id="rooms">
+  <button class="room active" data-room="0"><strong>01 · The Beginning</strong><small>Where it all starts</small></button>
+  <button class="room" data-room="1"><strong>02 · Beautiful Memories</strong><small>Moments worth keeping</small></button>
+  <button class="room" data-room="2"><strong>03 · Things I Adore</strong><small>What makes you special</small></button>
+  <button class="room" data-room="3"><strong>04 · Our Journey</strong><small>Every step of the way</small></button>
+  <button class="room" data-room="4"><strong>05 · The Little Things</strong><small>The details I notice</small></button>
+  <button class="room" data-room="5"><strong>06 · The Final Room</strong><small>A message from my heart</small></button>
+ </div></div>
+ <div class="panel upload"><h2>Make the gallery yours</h2><p>Choose Sheryl's photographs from your device. They are displayed in this browser session; to publish them for Sheryl, the image files must also be included in the website folder.</p><label for="photos" class="hint">SELECT PHOTOGRAPHS</label><input id="photos" type="file" accept="image/*" multiple><div id="upload-status" class="hint">No photos selected yet.</div><p class="hint">Tip: add up to 3 photos at a time for each room by choosing them here. Your selections are local to this visit.</p></div>
+</section>
+<footer>Made with love · The Sheryl Museum ♡</footer>
+</main>
+<script>
+const rooms=[
+ {name:"THE BEGINNING",welcome:"Welcome, Sheryl. I've been waiting to show you something special. This little place is for you.",line:"Some stories are too beautiful to be forgotten."},
+ {name:"BEAUTIFUL MEMORIES",welcome:"This room is filled with moments worth holding close. Take your time and look around.",line:"Every picture has a little piece of a story."},
+ {name:"THINGS I ADORE",welcome:"There are so many little things about you that deserve their own walls.",line:"Sometimes the smallest things mean the most."},
+ {name:"OUR JOURNEY",welcome:"Every chapter matters: the beautiful moments, the lessons, and everything in between.",line:"The best parts of a journey are the memories we make."},
+ {name:"THE LITTLE THINGS",welcome:"It's the little details that make someone unforgettable.",line:"I hope you never forget how special you are."},
+ {name:"THE FINAL ROOM",welcome:"And finally, a room with one message: you are loved, Sheryl.",line:"Thank you for being you. This little world has your name on it."}
+];
+let room=0,step=0,yaw=0,photos=[];
+const $=id=>document.getElementById(id);
+function renderFrames(){
+ $('frames').innerHTML='';
+ for(let i=0;i<3;i++){
+  const p=photos[i];const el=document.createElement('button');el.className='frame';el.type='button';
+  el.innerHTML=p?`<img src="${p.url}" alt="Photo memory"><small>${escapeHTML(p.name)}</small>`:`<div class="placeholder">♡</div><small>MEMORY ${i+1}</small>`;
+  el.addEventListener('click',()=>openPhoto(p,i));$('frames').appendChild(el);
+ }
+}
+function escapeHTML(s){return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function openPhoto(p,i){
+ $('modal-content').innerHTML=p?`<img src="${p.url}" alt="Selected memory">`:'<div style="font-size:45px;color:#b5a27a">♡</div>';
+ $('modal-title').textContent=p?p.name:`A space for memory ${i+1}`;
+ $('modal-desc').textContent=p?'A moment, kept here in your museum.':'This frame is waiting for one of Sheryl’s photographs. Add pictures using the photo picker below.';
+ $('modal').classList.add('open');
+}
+$('close-modal').onclick=()=>$('modal').classList.remove('open');
+$('modal').addEventListener('click',e=>{if(e.target===$('modal'))$('modal').classList.remove('open')});
+function setRoom(n){
+ room=(n+rooms.length)%rooms.length;step=0;yaw=0;
+ $('room-label').textContent=String(room+1).padStart(2,'0')+' · '+rooms[room].name;
+ $('guide-text').textContent=rooms[room].welcome;
+ document.querySelectorAll('[data-room]').forEach(b=>b.classList.toggle('active',Number(b.dataset.room)===room));
+ updateScene();
+}
+function updateScene(){
+ const f=$('frames');f.style.transform=`translateX(${Math.sin(yaw*Math.PI/180)*12}px) translateY(${Math.cos(yaw*Math.PI/180)*5}px)`;
+ $('scene').style.transform=`translateX(${Math.sin(yaw*Math.PI/180)*8}px)`;
+}
+function move(dir){
+ const amount=12;
+ if(dir==='forward')step+=amount;
+ if(dir==='back')step-=amount;
+ if(dir==='left')yaw-=8;
+ if(dir==='right')yaw+=8;
+ step=Math.max(-80,Math.min(80,step));yaw=Math.max(-45,Math.min(45,yaw));
+ $('guide-text').textContent=rooms[room].line;
+ updateScene();
+}
+document.querySelectorAll('[data-move]').forEach(b=>b.addEventListener('click',()=>move(b.dataset.move)));
+$('turn-left').onclick=()=>move('left');$('turn-right').onclick=()=>move('right');
+$('next-room').onclick=()=>setRoom(room+1);
+document.querySelectorAll('[data-room]').forEach(b=>b.addEventListener('click',()=>setRoom(Number(b.dataset.room))));
+$('game').addEventListener('keydown',e=>{
+ const k=e.key.toLowerCase(),map={arrowup:'forward',w:'forward',arrowdown:'back',s:'back',arrowleft:'left',a:'left',arrowright:'right',d:'right'};
+ if(map[k]){e.preventDefault();move(map[k]);}
+});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')$('modal').classList.remove('open')});
+$('photos').addEventListener('change',e=>{
+ const files=[...e.target.files].filter(f=>f.type.startsWith('image/'));
+ photos.forEach(p=>URL.revokeObjectURL(p.url));
+ photos=files.slice(0,3).map(f=>({url:URL.createObjectURL(f),name:f.name.replace(/\.[^.]+$/,'')}));
+ renderFrames();$('upload-status').textContent=`${photos.length} photo(s) loaded into this room preview.`;
+});
+renderFrames();setRoom(0);
+</script>
+</body></html>
